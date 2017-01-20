@@ -1,8 +1,8 @@
 package pinyin
 
 import (
-	"github.com/qiniu/iconv"
 	"strings"
+	"github.com/axgle/mahonia"
 )
 
 var (
@@ -26,12 +26,7 @@ func New() Pinyin {
 func (c *Pinyin) Convert(s string) (string, error) {
 	var pyStr string
 
-	gbk, err := utf8ToGbk(s)
-	if err != nil {
-		return pyStr, err
-	}
-
-	pyArr := c.gbkToPinyin(gbk)
+	pyArr := c.gbkToPinyin(utf8ToGbk(s))
 	pyStr = strings.Join(pyArr, c.Split)
 
 	return pyStr, nil
@@ -62,15 +57,9 @@ func (c *Pinyin) gbkToPinyin(gbk string) []string {
 	return pyStr
 }
 
-func utf8ToGbk(s string) (string, error) {
-	cd, err := iconv.Open("gbk", "utf-8")
-	if err != nil {
-		return "", err
-	}
-	defer cd.Close()
-	gbk := cd.ConvString(s)
-
-	return gbk, nil
+func utf8ToGbk(s string) string {
+	enc := mahonia.NewEncoder("gbk")
+	return enc.ConvertString(s)
 }
 
 func pinyinSearch(p int) string {
